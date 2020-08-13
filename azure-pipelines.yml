@@ -9,7 +9,7 @@ jobs:
       #----------------------------------------------------------------------
       - task: Maven@3
         inputs:
-            mavenPomFile: 'pom.xml'
+            mavenPomFile: 'complete/pom.xml'
             publishJUnitResults: true
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
             javaHomeOption: 'JDKVersion'
@@ -21,7 +21,7 @@ jobs:
     
       # Production build
       #----------------------------------------------------------------------
-      - script: ./mvnw package -Pprod -DskipTests
+      - script: mvn package -Pprod -DskipTests
         displayName: 'BUILD: creating production build'
       - task: CopyFiles@2
         inputs:

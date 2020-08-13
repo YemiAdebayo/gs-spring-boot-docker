@@ -3,18 +3,14 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- master
+jobs:
+  - job: Test
+    pool:
+      vmImage: 'Ubuntu 18.04'
 
-pool:
-  vmImage: '18.04'
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- task: Maven@3
-  inputs:
+    steps:
+      - task: Maven@3
+        inputs:
           mavenPomFile: 'pom.xml'
           mavenOptions: '-Xmx3072m'
           javaHomeOption: 'JDKVersion'

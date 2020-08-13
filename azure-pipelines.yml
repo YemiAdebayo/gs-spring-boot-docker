@@ -4,10 +4,17 @@ jobs:
       vmImage: 'Ubuntu 18.04'
     
     steps:
-      # Production build
-      #----------------------------------------------------------------------
-      - script: complete/mvnw package -Pprod -DskipTests
-        displayName: 'BUILD: creating production build'
+      - task: Maven@3
+        inputs:
+            mavenPomFile: 'pom.xml'
+            publishJUnitResults: true
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            javaHomeOption: 'JDKVersion'
+            mavenVersionOption: 'Default'
+            mavenAuthenticateFeed: false
+            effectivePomSkip: false
+            sonarQubeRunAnalysis: false
+
       - task: CopyFiles@2
         inputs:
           SourceFolder: 'target'

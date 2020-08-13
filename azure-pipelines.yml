@@ -2,26 +2,27 @@ jobs:
   - job: Test
     pool:
       vmImage: 'Ubuntu 18.04'
-
+    
     steps:
       #----------------------------------------------------------------------
       # Install all tools and check configuration
       #----------------------------------------------------------------------
-      - task: Maven@3
+      - task: NodeTool@0
         inputs:
-            mavenPomFile: 'complete/pom.xml'
-            publishJUnitResults: true
-            testResultsFiles: '**/surefire-reports/TEST-*.xml'
-            javaHomeOption: 'JDKVersion'
-            mavenVersionOption: 'Default'
-            mavenAuthenticateFeed: false
-            effectivePomSkip: false
-            sonarQubeRunAnalysis: false
+          versionSpec: '10.15.3'
+        displayName: 'TOOLS: install Node.js'
+      - script: sudo npm install -g npm
+        displayName: 'TOOLS: update NPM'
+      - script: sudo chown -R vsts:docker /home/vsts/.npm/
+        displayName: 'BUGS-FIX: change /home/vsts/.npm/ permission'
+      - script: sudo /etc/init.d/mysql stop
+        displayName: 'TOOLS: stop MySQL'
       #----------------------------------------------------------------------
-    
+      # Tests
+      
       # Production build
       #----------------------------------------------------------------------
-      - script: mvn package -Pprod -DskipTests
+      - script: .complete/mvnw package -Pprod -DskipTests
         displayName: 'BUILD: creating production build'
       - task: CopyFiles@2
         inputs:
@@ -32,4 +33,3 @@ jobs:
         inputs:
           pathtoPublish: '$(Build.ArtifactStagingDirectory)'
           artifactName: bugtracker
-    

@@ -1,21 +1,35 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 jobs:
   - job: Test
     pool:
       vmImage: 'Ubuntu 18.04'
 
     steps:
+      #----------------------------------------------------------------------
+      # Install all tools and check configuration
+      #----------------------------------------------------------------------
       - task: Maven@3
         inputs:
-          mavenPomFile: 'complete/pom.xml'
-          mavenOptions: '-Xmx3072m'
-          javaHomeOption: 'JDKVersion'
-          jdkVersionOption: '1.11'
-          jdkArchitectureOption: 'x64'
-          publishJUnitResults: false
-          testResultsFiles: '**/TEST-*.xml'
-          goals: 'package'
+            mavenPomFile: 'pom.xml'
+            publishJUnitResults: true
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            javaHomeOption: 'JDKVersion'
+            mavenVersionOption: 'Default'
+            mavenAuthenticateFeed: false
+            effectivePomSkip: false
+            sonarQubeRunAnalysis: false
+      #----------------------------------------------------------------------
+    
+      # Production build
+      #----------------------------------------------------------------------
+      - script: ./mvnw package -Pprod -DskipTests
+        displayName: 'BUILD: creating production build'
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: 'target'
+          Contents: '*.jar'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          artifactName: bugtracker
+    
